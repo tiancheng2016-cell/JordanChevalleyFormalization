@@ -1,0 +1,208 @@
+% Compile with XeLaTeX or LuaLaTeX.
+\documentclass[12pt]{article}
+
+\usepackage[
+top=2.54cm,
+bottom=2.54cm,
+left=3.18cm,
+right=3.18cm
+]{geometry}
+
+\usepackage{fontspec}
+\IfFontExistsTF{Times New Roman}
+  {\setmainfont{Times New Roman}}
+  {\setmainfont{TeX Gyre Termes}}
+\IfFontExistsTF{Source Code Pro}
+  {\setmonofont{Source Code Pro}[Scale=0.9]}
+  {\IfFontExistsTF{Courier New}
+    {\setmonofont{Courier New}[Scale=0.9]}
+    {\setmonofont{Consolas}[Scale=0.9]}}
+
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+\setlength{\parskip}{8pt}
+\setlength{\parindent}{0pt}
+\usepackage{ragged2e}
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\bfseries\fontsize{14}{16}\selectfont}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\bfseries\fontsize{14}{16}\selectfont}
+  {\thesubsection}{1em}{}
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+\titlespacing*{\subsection}{0pt}{6pt}{3pt}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=*}
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{CodeBlock}{Verbatim}{
+  breaklines=true,
+  breakanywhere=true,
+  fontsize=\footnotesize
+}
+\DefineVerbatimEnvironment{PromptBlock}{Verbatim}{
+  breaklines=true,
+  breakanywhere=true,
+  fontsize=\scriptsize
+}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+\justifying
+\emergencystretch=3em
+
+\begin{center}
+{\bfseries\fontsize{14}{16}\selectfont Formalizing the Jordan-Chevalley Decomposition with a Lean Proving Agent\par}
+\vspace{8pt}
+{\fontsize{12}{14}\selectfont Name: Ge Tiancheng\par}
+{\fontsize{12}{14}\selectfont Student ID: EEE2509015\par}
+{\fontsize{12}{14}\selectfont Course: AI for Mathematics\par}
+\end{center}
+
+\vspace{8pt}
+
+\section{Theorem}
+
+I formalized the Jordan-Chevalley decomposition for linear operators. Informally, if \(V\) is a finite-dimensional vector space over an algebraically closed field \(K\), then every endomorphism \(T : V \to V\) has a unique decomposition \(T = S + N\), where \(S\) is semisimple, \(N\) is nilpotent, \(S\) and \(N\) commute, and both parts are polynomial expressions in \(T\).
+
+The final Lean theorem statement was:
+
+{\footnotesize\ttfamily\singlespacing
+\begin{flushleft}
+theorem jordan\_chevalley\_decomposition\\
+\quad \{K V : Type*\} [Field K] [IsAlgClosed K] [AddCommGroup V] [Module K V]\\
+\quad [FiniteDimensional K V] (T : Module.End K V) :\\
+\quad $\exists$ S N : Module.End K V,\\
+\quad\quad T = S + N $\land$\\
+\quad\quad S.IsSemisimple $\land$\\
+\quad\quad IsNilpotent N $\land$\\
+\quad\quad Commute S N $\land$\\
+\quad\quad S $\in$ Algebra.adjoin K (\{T\} : Set (Module.End K V)) $\land$\\
+\quad\quad N $\in$ Algebra.adjoin K (\{T\} : Set (Module.End K V)) $\land$\\
+\quad\quad $\forall$ S' N' : Module.End K V,\\
+\quad\quad\quad T = S' + N' $\to$\\
+\quad\quad\quad S'.IsSemisimple $\to$\\
+\quad\quad\quad IsNilpotent N' $\to$\\
+\quad\quad\quad Commute S' N' $\to$\\
+\quad\quad\quad S' = S $\land$ N' = N := by
+\end{flushleft}
+}
+
+The clauses \(S \in K[T]\) and \(N \in K[T]\), implemented by the two \(\texttt{Algebra.adjoin}\) membership conditions in the displayed Lean statement, express that both parts are polynomial expressions in \(T\). The theorem statement was preserved during the final accepted run and was not weakened.
+
+\section{Agent System and Workflow}
+
+Codex was the agentic coding assistant and backend. Numina-Lean-Agent was the Lean proving-agent harness. Because Numina normally calls Claude Code, I added a local wrapper adapter that translated Numina's Claude-shaped subprocess calls into \texttt{codex.cmd exec} calls and returned the JSON result shape expected by Numina.
+
+I first attempted Archon. It installed and initialized, but its proof loop could not run because Claude Code authentication was unavailable. I investigated Archon-to-Codex repointing, but did not patch it: this Archon version was tightly coupled to Claude-specific flags, stream-json parsing, session/resume behavior, authentication checks, and \texttt{.claude/} tooling. I therefore switched to the Numina/Codex wrapper route.
+
+\section{Prompts Used}
+
+The exact full natural-language prompts and configuration files are included in the attached \texttt{agent\_config\_and\_prompts.zip}. The PDF report itself includes selected exact prompt excerpts used during the run. Each block below is quoted from the actual prompt log or prompt file; long prompts are shortened only for the page limit, and the full versions are attached.
+
+\textbf{Prompt A: project preparation.} Purpose: create the project structure before Lean, Archon, or proof work.
+
+\begin{PromptBlock}
+Please do only project-folder preparation. Do not set up Lean yet.
+
+Tasks:
+1. Confirm that these folders exist:
+   - inputs
+   - logs
+   - agent_artifacts/archon_task
+\end{PromptBlock}
+
+\textbf{Prompt B: Numina/Codex wrapper dry run.} Purpose: test the wrapper on a toy Lean file only.
+
+\begin{PromptBlock}
+This is a toy adapter test for Numina-Lean-Agent using a Codex wrapper.
+
+Do not edit `Formalization.lean`.
+Only edit `NuminaAdapterToy.lean`.
+Replace the toy `sorry` with a valid proof.
+\end{PromptBlock}
+
+\textbf{Prompt C: real theorem Round 1.} Purpose: start the first controlled real theorem proof run.
+
+\begin{PromptBlock}
+This is the Jordan-Chevalley decomposition formalization task.
+
+You are running through Numina-Lean-Agent via a Codex wrapper for one controlled round only.
+
+Work only on `Formalization.lean` in the current Lean project directory.
+Do not edit `Formalization.lean.bak_step8ea`.
+\end{PromptBlock}
+
+\textbf{Prompt D: strict repair Round 2.} Purpose: steer away from the Newton shortcut used by the rejected Round 1 proof.
+
+\begin{PromptBlock}
+Why this repair iteration exists:
+
+- A previous one-round run produced a Lean-accepted proof, but it imported `Mathlib.Dynamics.Newton`.
+- That proof used `Polynomial.existsUnique_nilpotent_sub_and_aeval_eq_zero`.
+- Mathlib's own `LinearAlgebra/JordanChevalley.lean` uses that Newton lemma internally.
+- This repair round must avoid that shortcut and follow the lower-level blueprint route instead.
+\end{PromptBlock}
+
+\textbf{Prompt E: final verification.} Purpose: run final verification without changing the proof.
+
+\begin{PromptBlock}
+The next task is final verification only.
+
+Important:
+Do not change the theorem statement.
+Do not modify the proof unless a final verification command reveals an actual problem.
+Do not rerun the proof loop.
+\end{PromptBlock}
+
+The full prompt files, Numina config files, wrapper adapter, run logs, and final verification artifacts are included in the attached \texttt{agent\_config\_and\_prompts.zip}.
+
+\section{Run Account and Iterations}
+
+I set up Lean 4 and Mathlib, inspected lower-level Mathlib tools for generalized eigenspaces, polynomial evaluation, nilpotence, semisimplicity, ideals, and CRT, then seeded the Lean file with the theorem statement and one temporary \texttt{sorry}. Archon was blocked by Claude authentication; the Archon-to-Codex patch was judged too large.
+
+Iteration summary: the toy dry run tested the wrapper on \texttt{NuminaAdapterToy.lean}, where Codex replaced \texttt{sorry} with \texttt{trivial}. Round 1 on the real theorem completed technically, but I rejected it because it used \texttt{Mathlib.Dynamics.Newton} and a Newton lemma used internally by Mathlib's Jordan-Chevalley proof. Round 2 was the required steering/repair iteration: I restored the backup, added stricter bans, and Numina/Codex produced the final accepted proof. Final verification then ran Lean, placeholder searches, forbidden-name searches, and \texttt{\#print axioms}.
+
+The Round 2 adapter hit its 600-second timeout after Codex wrote a completion message; therefore, I relied on independent Lean and grep verification, not only the harness status.
+
+\section{Final Verification}
+
+\begin{CodeBlock}
+lake env lean Formalization.lean
+no output, Lean accepted the file.
+
+rg -n "sorry|admit|axiom|constant|unsafe" Formalization.lean
+no matches
+\end{CodeBlock}
+
+I also searched \texttt{Formalization.lean} for forbidden or strict-forbidden names, including:
+
+\begin{CodeBlock}
+Mathlib.LinearAlgebra.JordanChevalley
+exists_isNilpotent_isSemisimple
+isNilpotent_isSemisimple_unique
+exists_isNilpotent_isSemisimple_of_separable_of_dvd_pow
+Dunford
+Mathlib.Dynamics.Newton
+existsUnique_nilpotent_sub_and_aeval_eq_zero
+eq_zero_of_isNilpotent_isSemisimple
+\end{CodeBlock}
+
+Result: \texttt{no matches}.
+
+Exact axiom output:
+
+\begin{CodeBlock}
+'AI4MATH.jordan_chevalley_decomposition' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{CodeBlock}
+
+There is no \texttt{sorryAx}. The proof is not choice-free, since \texttt{Classical.choice} appears in the printed axiom dependencies.
+
+\section{Reflection}
+
+The agent did well at navigating Mathlib, repairing Lean errors, and turning the blueprint into a working proof using generalized eigenspaces, CRT-style polynomial construction, polynomial evaluation, nilpotence, semisimplicity, commutation, and uniqueness.
+
+The hard part was avoiding proof routes that were too close to Mathlib's built-in Jordan-Chevalley proof. Round 1 showed that a theorem can compile and still be unacceptable for an assignment boundary. I learned that autoformalization requires prompt design, harness adaptation, iteration, and audit: the final trust came from Lean kernel verification, explicit forbidden-name searches, and the exact \texttt{\#print axioms} output.
+
+\end{document}

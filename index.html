@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jordan-Chevalley Decomposition &mdash; Lean proof</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #5b6472;
+      --line: #d9e0ea;
+      --accent: #1b63c9;
+      --accent-dark: #144b98;
+      --tag: #eef4ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0;
+    }
+
+    header {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 780px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 28px;
+      box-shadow: 0 18px 48px rgba(31, 41, 55, 0.08);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.35rem;
+    }
+
+    .details {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .details li {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfcff;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.95em;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 24px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid #c8d9f7;
+      background: var(--tag);
+      padding: 5px 10px;
+      color: #173b73;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 9px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .button:hover,
+    .button:focus {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+
+    .button.secondary {
+      background: #ffffff;
+      color: var(--accent);
+    }
+
+    .button.secondary:hover,
+    .button.secondary:focus {
+      background: #eef4ff;
+      color: var(--accent-dark);
+    }
+
+    .note {
+      margin-top: 24px;
+      border-left: 4px solid var(--accent);
+      background: #ffffff;
+      border-radius: 6px;
+      padding: 16px 18px;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 24px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Jordan-Chevalley Decomposition &mdash; Lean proof</h1>
+      <p class="lead">
+        A Lean 4 / Mathlib formalization of the Jordan-Chevalley decomposition
+        for finite-dimensional linear operators over an algebraically closed
+        field. The proof is provided as a single Lean file with pinned Lake
+        metadata and final verification artifacts.
+      </p>
+    </header>
+
+    <section class="card" aria-labelledby="proof-title">
+      <h2 id="proof-title">Numina/Codex &mdash; Jordan-Chevalley decomposition</h2>
+      <ul class="details">
+        <li><strong>Main theorem:</strong> <code>AI4MATH.jordan_chevalley_decomposition</code></li>
+        <li><strong>Lean/Mathlib:</strong> v4.30.0</li>
+        <li><strong>Axioms:</strong> <code>[propext, Classical.choice, Quot.sound]</code></li>
+        <li><strong>Note:</strong> no <code>sorryAx</code></li>
+        <li><strong>Note:</strong> not choice-free because <code>Classical.choice</code> appears</li>
+      </ul>
+
+      <div class="tags" aria-label="proof status tags">
+        <span class="tag">Lean accepted</span>
+        <span class="tag">no sorryAx</span>
+        <span class="tag">pinned v4.30.0</span>
+      </div>
+
+      <div class="buttons">
+        <a class="button" id="liveLeanButton" href="https://live.lean-lang.org/" target="_blank" rel="noopener">Open in live Lean</a>
+        <a class="button secondary" href="Formalization.lean">Download .lean</a>
+        <a class="button secondary" href="report.pdf">Download report</a>
+        <a class="button secondary" href="agent_config_and_prompts.zip">Download prompts/config zip</a>
+        <a class="button secondary" href="verification/FINAL_VERIFICATION.md">View verification</a>
+      </div>
+    </section>
+
+    <section class="note" aria-label="version note">
+      Written and verified against Lean/Mathlib v4.30.0. The live Lean editor
+      may use a newer Mathlib version, so the browser check is a convenience
+      preview. The pinned reproducible verification is the Lake project in this
+      repository using <code>lean-toolchain</code> and <code>lake-manifest.json</code>.
+    </section>
+
+    <footer>
+      Public proof page for the AI for Mathematics Assignment 2 formalization.
+    </footer>
+  </main>
+
+  <script>
+    const leanFileUrl = new URL('Formalization.lean', window.location.href).href;
+    const liveLeanUrl = 'https://live.lean-lang.org/#url=' + encodeURIComponent(leanFileUrl);
+    document.getElementById('liveLeanButton').href = liveLeanUrl;
+  </script>
+</body>
+</html>

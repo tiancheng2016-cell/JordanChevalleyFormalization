@@ -1,0 +1,2 @@
+﻿'AI4MATH.jordan_chevalley_decomposition' depends on axioms: [propext, Classical.choice, Quot.sound]
+
