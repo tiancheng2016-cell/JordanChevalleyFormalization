@@ -27,7 +27,7 @@ right=3.18cm
 \usepackage{titlesec}
 \titleformat{\section}
   {\normalfont\bfseries\fontsize{14}{16}\selectfont}
-  {\thesection}{1em}{}
+  {\thesection.}{0.5em}{}
 \titleformat{\subsection}
   {\normalfont\bfseries\fontsize{14}{16}\selectfont}
   {\thesubsection}{1em}{}
@@ -53,6 +53,7 @@ right=3.18cm
 \usepackage[hidelinks]{hyperref}
 
 \begin{document}
+\frenchspacing
 \justifying
 \emergencystretch=3em
 
@@ -205,7 +206,7 @@ Exact axiom output:
 'AI4MATH.jordan_chevalley_decomposition' depends on axioms: [propext, Classical.choice, Quot.sound]
 \end{CodeBlock}
 
-There is no \texttt{sorryAx}. The proof is not choice-free, since \texttt{Classical.choice} appears in the printed axiom dependencies.
+There is no sorryAx. The proof is not choice-free, since \texttt{Classical.choice} appears in the printed axiom dependencies. This dependence is expected for the present Jordan--Chevalley formalization: the theorem is stated over an algebraically closed field and finite-dimensional vector spaces, and the proof uses Mathlib tools for eigenvalue existence, generalized eigenspace decompositions, semisimplicity, and finite-dimensional decompositions, which typically rely on nonconstructive classical reasoning. Therefore, this Lean proof retains these standard classical dependencies as part of the final formalization, rather than presenting the result as a fully choice-free development.
 
 \section{Reflection}
 
